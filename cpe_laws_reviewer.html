@@ -1,0 +1,1352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CPE Laws 322 — Reviewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #252535;
+    --accent: #7c5cfc;
+    --accent2: #fc5c7c;
+    --accent3: #5cfcb4;
+    --accent4: #fcb45c;
+    --text: #e8e8f0;
+    --muted: #7878a0;
+    --correct: #5cfcb4;
+    --wrong: #fc5c7c;
+    --tag-bg: #1e1e30;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* BG grid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; position: relative; z-index: 1; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 3rem 0 2.5rem;
+    position: relative;
+  }
+  .header-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    background: rgba(124,92,252,0.1);
+    border: 1px solid rgba(124,92,252,0.3);
+    padding: 0.35rem 1rem;
+    border-radius: 2rem;
+    margin-bottom: 1.2rem;
+    text-transform: uppercase;
+  }
+  .header h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.8rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .glow-line {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 1.5rem auto 0;
+    opacity: 0.6;
+  }
+
+  /* NAV TABS */
+  .nav {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 2rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.5rem;
+  }
+  .nav-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .nav-btn:hover { color: var(--text); background: var(--border); }
+  .nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* SECTION */
+  .section { display: none; animation: fadeIn 0.3s ease; }
+  .section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* CHAPTER CARD */
+  .chapter-block {
+    margin-bottom: 2rem;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--card);
+  }
+  .chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.1rem 1.5rem;
+    background: var(--surface);
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    user-select: none;
+  }
+  .chapter-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #fff;
+    background: var(--accent);
+    padding: 0.3rem 0.7rem;
+    border-radius: 6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .chapter-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    flex: 1;
+  }
+  .chapter-toggle { color: var(--muted); font-size: 1.1rem; transition: transform 0.25s; }
+  .chapter-block.open .chapter-toggle { transform: rotate(180deg); }
+  .chapter-body { display: none; padding: 1.5rem; }
+  .chapter-block.open .chapter-body { display: block; }
+
+  /* TOPIC ITEM */
+  .topic { margin-bottom: 1.4rem; }
+  .topic-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--accent3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .topic-title::before {
+    content: '';
+    display: inline-block;
+    width: 12px;
+    height: 2px;
+    background: var(--accent3);
+    border-radius: 2px;
+  }
+  .topic-content {
+    font-size: 0.9rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
+  .topic-content ul { padding-left: 1.4rem; }
+  .topic-content li { margin-bottom: 0.35rem; }
+  .topic-content strong { color: var(--accent4); font-weight: 600; }
+
+  .law-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(124,92,252,0.15);
+    color: var(--accent);
+    border: 1px solid rgba(124,92,252,0.3);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-left: 0.5rem;
+    vertical-align: middle;
+  }
+
+  .highlight-box {
+    background: rgba(92,252,180,0.06);
+    border: 1px solid rgba(92,252,180,0.2);
+    border-left: 3px solid var(--accent3);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  .warn-box {
+    background: rgba(252,180,92,0.06);
+    border: 1px solid rgba(252,180,92,0.2);
+    border-left: 3px solid var(--accent4);
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 0.8rem 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.2rem 0;
+  }
+
+  /* QUIZ */
+  .quiz-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .quiz-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-left: auto;
+  }
+  .quiz-score span { color: var(--accent3); font-weight: 700; font-size: 1rem; }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 1.2rem;
+    transition: border-color 0.2s;
+  }
+  .q-card.answered-correct { border-color: var(--correct); }
+  .q-card.answered-wrong { border-color: var(--wrong); }
+
+  .q-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+  }
+  .q-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .q-type-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+  .badge-id { background: rgba(124,92,252,0.15); color: var(--accent); }
+  .badge-sit { background: rgba(252,92,124,0.15); color: var(--accent2); }
+  .badge-tf { background: rgba(252,180,92,0.15); color: var(--accent4); }
+
+  .q-text {
+    font-size: 0.95rem;
+    line-height: 1.65;
+    margin-bottom: 1.1rem;
+    font-weight: 500;
+  }
+  .q-options { display: flex; flex-direction: column; gap: 0.55rem; }
+  .q-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--surface);
+    transition: all 0.15s;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .q-option:hover:not(.disabled) { border-color: var(--accent); background: rgba(124,92,252,0.08); }
+  .q-option .opt-letter {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--muted);
+    min-width: 1.2rem;
+    padding-top: 0.1rem;
+  }
+  .q-option.correct { border-color: var(--correct); background: rgba(92,252,180,0.08); }
+  .q-option.correct .opt-letter { color: var(--correct); }
+  .q-option.wrong-pick { border-color: var(--wrong); background: rgba(252,92,124,0.08); }
+  .q-option.wrong-pick .opt-letter { color: var(--wrong); }
+  .q-option.disabled { pointer-events: none; }
+
+  .q-explanation {
+    margin-top: 0.9rem;
+    padding: 0.8rem 1rem;
+    background: rgba(124,92,252,0.07);
+    border: 1px solid rgba(124,92,252,0.2);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: var(--muted);
+    display: none;
+  }
+  .q-explanation.show { display: block; }
+  .q-explanation strong { color: var(--accent); }
+
+  .btn {
+    padding: 0.6rem 1.4rem;
+    border-radius: 8px;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--accent); }
+
+  /* CHEATSHEET */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .cheat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem;
+  }
+  .cheat-card h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .cheat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    padding: 0.35rem 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .cheat-row:last-child { border-bottom: none; }
+  .cheat-key { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 0.75rem; min-width: 70px; }
+  .cheat-val { color: var(--text); text-align: right; line-height: 1.45; font-size: 0.8rem; }
+
+  @media (max-width: 600px) {
+    .nav-btn { font-size: 0.75rem; padding: 0.5rem 0.7rem; min-width: 80px; }
+    .chapter-header { padding: 1rem; }
+    .chapter-body { padding: 1.1rem; }
+    .cheat-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-tag">📋 CPE Laws 322 — Review Material</div>
+    <h1>Laws &amp; <span>Professional</span><br>Practices Reviewer</h1>
+    <p>Philippine IT Laws · Engineering Ethics · Professional Responsibilities</p>
+    <div class="glow-line"></div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showSection('notes')">📖 Study Notes</button>
+    <button class="nav-btn" onclick="showSection('cheat')">⚡ Quick Reference</button>
+    <button class="nav-btn" onclick="showSection('quiz')">🧠 Quiz</button>
+    <button class="nav-btn" onclick="showSection('situational')">⚠️ Situational</button>
+  </nav>
+
+  <!-- ===== STUDY NOTES ===== -->
+  <div id="notes" class="section active">
+
+    <!-- CH1 -->
+    <div class="chapter-block open">
+      <div class="chapter-header" onclick="toggleChapter(this)">
+        <span class="chapter-num">Ch 1</span>
+        <h2>Introduction to CPE Laws</h2>
+        <span class="chapter-toggle">▼</span>
+      </div>
+      <div class="chapter-body">
+        <div class="topic">
+          <div class="topic-title">Laws, Morality, and Ethics</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>Laws</strong> — Formal rules controlling behavior. Enforceable by the state and courts. Has narrower scope than morality/ethics.</li>
+              <li><strong>Morality</strong> — Informal set of values, principles, beliefs, and ways of life. Rarely imposed by the state but socially pressured (e.g. Buddhism, Christianity, Stoicism).</li>
+              <li><strong>Ethics</strong> — A discipline of philosophy; a reflective process based on beliefs, ideals, and purpose. Goes beyond law and morality; asks "What should I do?"</li>
+            </ul>
+            <div class="highlight-box">Ethics is NOT the same as morality or law — it <strong>examines moral systems</strong> to evaluate if they remain valid, and encourages open-ended inquiry about what is good and right.</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Types of Law</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>Common Law</strong> — Based on court or tribunal decisions (case law / precedents)</li>
+              <li><strong>Civil Law</strong> — Governs private matters (contracts, torts, property, family law)</li>
+              <li><strong>Criminal Law</strong> — Governs arrest, detention, charging, prosecution of offenders. Example: Revised Penal Code</li>
+              <li><strong>Procedural Law</strong> — Sets methods, rules, and procedures for court cases</li>
+              <li><strong>National Law</strong> — Laws by which people are governed by the state</li>
+              <li><strong>Imperative Law</strong> — Rules of action imposed by authority; main exponent: John Austin</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Sources of Law</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>International Law</strong> — Generally recognized and accepted rules among nations</li>
+              <li><strong>Custom</strong> — Social relations gave rise to several usages and traditions followed from ancient times</li>
+              <li><strong>Religion and Morality</strong> — State converted moral and religious rules into laws</li>
+              <li><strong>Judicial Decisions (Precedent)</strong> — Decisions by Supreme Court and High Courts recognized as laws</li>
+              <li><strong>Delegated Legislation</strong> — Legislature of state delegates some law-making powers to lower bodies</li>
+              <li><strong>Decree</strong> — Order from one having authority; a determination deciding what is to be done</li>
+              <li><strong>Statute</strong> — Act of the legislature; the written will of the legislative body</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">CPE Curriculum (Article IV)</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>BSCpE Knowledge Areas:</strong> Circuits & Electronics, Computing Algorithms, Computer Architecture, Digital Design, Embedded Systems, Computer Networks, Professional Practice, Information Security, Signal Processing, Systems & Project Engineering, Software Design, Occupational Health & Safety, Technopreneurship</li>
+              <li><strong>Allied Programs:</strong> EE, ECE, Software Engineering, Computer Science, IT</li>
+              <li>BSCpE graduates should design computers, computer-based systems, and networks — both hardware and software</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CH2 -->
+    <div class="chapter-block">
+      <div class="chapter-header" onclick="toggleChapter(this)">
+        <span class="chapter-num">Ch 2</span>
+        <h2>Philippine IT Laws &amp; Policies</h2>
+        <span class="chapter-toggle">▼</span>
+      </div>
+      <div class="chapter-body">
+
+        <div class="topic">
+          <div class="topic-title">E-Commerce Law <span class="law-tag">RA 8792</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Also known as the <strong>Electronic Commerce Act of 2000</strong></li>
+              <li>Approved by President Joseph E. Estrada on <strong>June 14, 2000</strong></li>
+              <li>Recognizes role of ICT in nation-building; promotes ICT use in government and general public</li>
+              <li>Covers any electronic data message or document used in commercial or non-commercial activities — including domestic and international dealings, transactions, contracts</li>
+            </ul>
+            <div class="highlight-box">
+              <strong>Key Provisions:</strong><br>
+              • Gave legal recognition to electronic data messages, documents, and electronic signatures (Sec 5 & 14)<br>
+              • Allows formation of contracts in electronic form (Sec 16)<br>
+              • Makes cable, broadcast, and wireless physical infrastructure within the telecommunications activity (Sec 28)<br>
+              • Hacking/cracking is punishable by fine — max damage commensurate (Sec 33)<br>
+              • Piracy through telecoms network that infringes IP is punishable (Sec 33)<br>
+              • All existing laws also apply to e-commerce transactions (Sec 33)<br>
+              • Parties given right to choose type and level of security methods (Sec 24)
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="topic">
+          <div class="topic-title">Intellectual Property Code <span class="law-tag">RA 8293</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Protects and secures the exclusive rights of <strong>scientists, inventors, artists, and other gifted citizens</strong> to their intellectual property and creations</li>
+              <li>Highlighted through <strong>Senator Raul S. Roco</strong> (January 1, 1998)</li>
+              <li>Protects <strong>creations of the mind</strong> in commerce: Inventions, Literary & Artistic works, Designs, Symbols/Names/Images</li>
+            </ul>
+            <div class="highlight-box">
+              <strong>Copyright — Two Types of Rights:</strong><br>
+              <strong>Economic Rights</strong> — Rights owner can prohibit or authorize: Reproduction, Public performance, Recording, Broadcasting, Translation into other language, Adaptation<br><br>
+              <strong>Moral Rights</strong> — Right to claim authorship; Right to oppose changes that could harm the creator's reputation
+            </div>
+            <ul>
+              <li><strong>Patents</strong> — Exclusive right granted for an invention (product or process) that provides a new way of doing something or a new technical solution</li>
+              <li><strong>Trademark</strong> — A sign capable of distinguishing goods or services of one enterprise from another</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="topic">
+          <div class="topic-title">Optical Media Act <span class="law-tag">RA 9239</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Also called <strong>Optical Media Act of 2003</strong></li>
+              <li>Signed by <strong>Gloria Macapagal Arroyo</strong> on <strong>February 10, 2004</strong></li>
+              <li>Reorganizes the video gram regulatory board; establishes country's fundamental principles for protecting and promoting intellectual property rights</li>
+              <li>Regulates production, mastering, replication, importation, and exportation of optical media</li>
+              <li><strong>Optical Media</strong> — Storage medium where information (sounds, images, software code) is stored by mastering and/or replication using lens scanning mechanism (laser)</li>
+            </ul>
+            <div class="warn-box">
+              <strong>License:</strong> Every license prescribed by OMB; valid for 3 years; may be amended or renewed<br>
+              <strong>Penalties:</strong> Closure of establishment + confiscation of manufacturing equipment + fine of not less than Php 300,000 but not more than Php 1,500,000
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="topic">
+          <div class="topic-title">Data Privacy Act <span class="law-tag">RA 10173</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Popularly known as the <strong>Data Privacy Act of 2012 (DPA)</strong></li>
+              <li>Guarantees people's privacy while ensuring free flow of information to foster innovation</li>
+              <li><strong>National Privacy Commission (NPC)</strong> — country's privacy watchdog; administers and implements the DPA</li>
+            </ul>
+            <div class="highlight-box">
+              <strong>Three Personas Involved:</strong><br>
+              • Data Subject<br>
+              • Personal Information Controller<br>
+              • Personal Information Processor<br><br>
+              <strong>What needs to be protected:</strong> Name, Address, TIN, SSS No., Contact Numbers, Bank Account Details, ATM Card Details, Credit Card Details
+            </div>
+            <div class="highlight-box">
+              <strong>Your Rights under DPA:</strong><br>
+              • Right to be informed — data should not be collected/processed/stored without explicit consent<br>
+              • Right to access — ask if an organization holds your data<br>
+              • Right to object — if processing is based on consent or legitimate interest<br>
+              • Right to erasure or blocking — suspend, withdraw, order destruction<br>
+              • Right to damages — claim compensation for inaccurate, false, unlawfully obtained data<br>
+              • Right to file a complaint — if misused, maliciously disclosed, or improperly disposed<br>
+              • Right to rectify — correct any inaccuracy or error in your data<br>
+              • Right to data portability
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="topic">
+          <div class="topic-title">DICT Act <span class="law-tag">RA 10844</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Established by <strong>Department of Information and Communications Technology Act of 2015</strong></li>
+              <li>Ratified on <strong>May 23, 2016</strong></li>
+              <li>Principal policy-making, planning, coordinating, implementing, and administrative body for ICT</li>
+              <li>IRR signed on October 17, 2016 by DBM Secretary Diokno and DICT Secretary Salalima</li>
+            </ul>
+            <div class="highlight-box">
+              <strong>DICT Focus Areas:</strong> Policy and Planning · Improved Public Access · Resource-Sharing and Capacity-Building · Consumer Protection and Industry Development<br><br>
+              <strong>ICT Agenda Priorities:</strong><br>
+              • National Broadband Plan — fiber optic and wireless deployment<br>
+              • Free Wi-Fi in parks, plazas, public libraries, schools, government hospitals, train stations, airports, seaports<br>
+              • National ICT Portal
+            </div>
+            <div class="warn-box">
+              <strong>Agencies transferred to DICT:</strong> ICTO, NCC, NCI, TELOF, NTTI, and all DOTC units dealing with communications
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="topic">
+          <div class="topic-title">Cybercrime Prevention Act <span class="law-tag">RA 10175</span></div>
+          <div class="topic-content">
+            <ul>
+              <li>Enacted on <strong>September 12, 2012</strong></li>
+              <li>Addresses crimes committed against and through computer systems</li>
+              <li>Contains penal substantive rules, procedural rules, and rules on international cooperation</li>
+            </ul>
+            <div class="highlight-box">
+              <strong>Key Provisions of Cybercrime Act:</strong><br>
+              1. Illegal Access — Access to computer/application without permission<br>
+              2. Illegal Interception — Interception of non-public computer data communications<br>
+              3. Data Interference — Unauthorized tampering, destroying, deleting, deteriorating computer data or electronic documents<br>
+              4. System Interference — Unauthorized alteration or deletion of computer data/programs to cause damage<br>
+              5. Misuse of Devices — Cybersquatting<br>
+              6. Computer-related Forgery<br>
+              7. Computer-related Fraud<br>
+              8. Computer-related Identity Theft — Unauthorized acquisition, abuse, transfer of identifying information<br>
+              9. Cybersex — Willful engagement for favour/consideration via computer system<br>
+              10. Child Pornography (RA 9775 — Anti-Child Pornography Act of 2009)<br>
+              11. Libel<br>
+              12. Aiding or Abetting<br>
+              13. Attempt<br>
+              14. Corporate Liability
+            </div>
+            <div class="warn-box">
+              <strong>Agencies attached to DICT (for cybercrime):</strong><br>
+              1. National Telecommunications Commission (NTC)<br>
+              2. National Privacy Commission (NPC)<br>
+              3. Cybercrime Investigation and Coordinating Centre (CICC)
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CH3 -->
+    <div class="chapter-block">
+      <div class="chapter-header" onclick="toggleChapter(this)">
+        <span class="chapter-num">Ch 3</span>
+        <h2>Philosophical Framework &amp; Cultural Issues</h2>
+        <span class="chapter-toggle">▼</span>
+      </div>
+      <div class="chapter-body">
+        <div class="topic">
+          <div class="topic-title">Ethics vs Morality vs Law</div>
+          <div class="topic-content">
+            <ul>
+              <li>Ethics encompasses more than just morality and law — it examines moral systems to evaluate if they remain valid</li>
+              <li>In an ideal world, ethical ideas influence the types of laws and moral systems a society adopts</li>
+              <li>Morality is rarely imposed by state; examples: Buddhism, Stoicism, Christianity</li>
+              <li>Laws are formal rules with narrower scope — enforced by state and courts</li>
+            </ul>
+            <div class="highlight-box">First written law: <strong>Code of Hammurabi, 1754 BC</strong> (Babylonian Laws) — an eye for an eye. Also related: Roman Law (Lex Romana).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CH4 -->
+    <div class="chapter-block">
+      <div class="chapter-header" onclick="toggleChapter(this)">
+        <span class="chapter-num">Ch 4</span>
+        <h2>Engineering Solutions &amp; Societal Effect</h2>
+        <span class="chapter-toggle">▼</span>
+      </div>
+      <div class="chapter-body">
+        <div class="topic">
+          <div class="topic-title">Social Responsibility of Engineers</div>
+          <div class="topic-content">
+            <ul>
+              <li>The central focus of engineering is the <strong>application of scientific knowledge to meet societal needs</strong></li>
+              <li>Engineering connects pure science to society — thus engineering has a <strong>social responsibility</strong></li>
+              <li>Social responsibility = commitment to place <strong>public safety and interest ahead of all other considerations</strong></li>
+            </ul>
+            <div class="highlight-box">
+              <strong>Social Responsibilities (Examples):</strong><br>
+              • Ensure safety and well-being of the public<br>
+              • Ensure society's funds and resources are well used<br>
+              • Refuse to work on a particular project/company<br>
+              • Speak out publicly against a proposed project<br>
+              • Blow the whistle on illegality or wrong-doing<br>
+              • Individual/organizational concern about engineering impact on society
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Societal Problems Engineers Address</div>
+          <div class="topic-content">
+            <ul>
+              <li>Overpopulation, Pollution, Global Warming, War, Stupidity, Disease, Habitat Destruction, Species Extinction</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Sustainable Development (3 Pillars)</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>Economic Growth</strong></li>
+              <li><strong>Environmental Protection</strong></li>
+              <li><strong>Social Progress</strong></li>
+            </ul>
+            <div class="highlight-box">Brundtland Commission: Sustainability = capacity to meet today's demands without jeopardizing future generations' ability to meet their own.</div>
+            There are <strong>17 UN Sustainable Development Goals (SDGs)</strong>: No Poverty, Zero Hunger, Good Health & Well-Being, Quality Education, Gender Equality, Clean Water, Affordable Clean Energy, Decent Work & Economic Growth, Industry/Innovation/Infrastructure, Reduced Inequality, Sustainable Cities, Responsible Consumption, Climate Action, Life Below Water, Life on Land, Peace/Justice/Strong Institutions, Partnerships for the Goals.
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Professional Engineer & Common Traits of Good Engineers</div>
+          <div class="topic-content">
+            <ul>
+              <li>Problem solvers with firm grasp of fundamental principles</li>
+              <li>Analytical, detailed oriented, creative</li>
+              <li>Lifelong learners with core knowledge applicable to many areas</li>
+              <li>Strong written and oral communication skills</li>
+              <li>Time-management skills; good people skills; required to write reports</li>
+              <li>Participate in local and national discipline-specific organizations; attend seminars, workshops</li>
+              <li>Work in team environments; divide tasks into smaller manageable problems</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CH5 -->
+    <div class="chapter-block">
+      <div class="chapter-header" onclick="toggleChapter(this)">
+        <span class="chapter-num">Ch 5</span>
+        <h2>Professional &amp; Ethical Responsibilities</h2>
+        <span class="chapter-toggle">▼</span>
+      </div>
+      <div class="chapter-body">
+        <div class="topic">
+          <div class="topic-title">Ethical Responsibility</div>
+          <div class="topic-content">
+            <ul>
+              <li>Ability to perceive, comprehend, and act upon different principles and values based on norms within a certain area/situation</li>
+              <li><strong>7 Areas:</strong> Ethics, Law, Theories, Privacy, Accuracy, Property, Access</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">ACM Code of Ethics</div>
+          <div class="topic-content">
+            <div class="highlight-box">
+              <strong>1. General Moral Imperatives:</strong><br>
+              Contribute to society and human well-being · Avoid harm · Be honest and trustworthy · Be fair, no discrimination · Honor property rights including copyrights and patent · Give proper credit · Respect privacy · Honor confidentiality<br><br>
+              <strong>2. More Specific Professional Responsibilities:</strong><br>
+              Strive for highest quality · Acquire and maintain professional competence · Know and respect existing laws · Give comprehensive/cautious job in planning · Design for actual consumers · Evaluate and test software · Be upfront about capabilities and limits · Pay attention to defaults · Develop communication skills
+            </div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">IIPTSA Code of Conduct</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>a. Integrity</strong> — Behave at all times</li>
+              <li><strong>b. Confidentiality</strong> — Do not disclose confidential info of employers/clients without prior permission</li>
+              <li><strong>c. Impartiality</strong> — No private profit if client/employer follows advice given</li>
+              <li><strong>d. Responsibility</strong> — Full responsibility for work done; complete in agreed time and budget; alert client to late delivery</li>
+              <li><strong>e. Relationship with IIPTSA</strong> — Do not seek personal advantage to the detriment of society</li>
+              <li><strong>f. Non-discrimination</strong> — No illegal discriminatory practices; hire based on skills, experience, performance</li>
+              <li><strong>g. Procedure</strong> — Anyone may lay a complaint against a member; level of member determines responsibility</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Ten Commandments of Computer Ethics</div>
+          <div class="topic-content">
+            <ol style="padding-left:1.4rem;line-height:2">
+              <li>Thou shalt not use a computer to harm other people.</li>
+              <li>Thou shalt not interfere with other people's computer work.</li>
+              <li>Thou shalt not snoop around in other people's computer files.</li>
+              <li>Thou shalt not use a computer to steal.</li>
+              <li>Thou shalt not use a computer to bear false witness.</li>
+              <li>Thou shalt not copy or use proprietary software without permission.</li>
+              <li>Thou shalt not use other people's computer resources without authorization.</li>
+              <li>Thou shalt not appropriate other people's intellectual output.</li>
+              <li>Thou shalt think about the social consequences of the program you are writing.</li>
+              <li>Thou shalt always use a computer in ways that ensure consideration and respect for other humans.</li>
+            </ol>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">Ethics of the Filipino IT Professional</div>
+          <div class="topic-content">
+            <ul>
+              <li>Promote public knowledge, understanding, and appreciation of IT</li>
+              <li>Consider general welfare and public good in performance of work</li>
+              <li>Advertise goods or services in a clear and truthful manner</li>
+              <li>Comply and abide by IP laws, patent laws, and related laws in respect of IT</li>
+              <li>Accept full responsibility for work undertaken; utilize skills with competence and professionalism</li>
+              <li>Make truthful statements on areas of competence</li>
+              <li>Not disclose or use confidential information without consent of parties concerned, except when required by law</li>
+              <li>Strive to attain the highest quality in both products and services</li>
+              <li>Knowingly participate in development of IT</li>
+              <li>Uphold and improve IT professionals' standards through continuing profession to enhance the IT profession</li>
+            </ul>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="topic">
+          <div class="topic-title">SE Code — 8 Principles (ACM/IEEE)</div>
+          <div class="topic-content">
+            <ul>
+              <li><strong>Principle 1 – PUBLIC</strong> — Act consistently with the public interest</li>
+              <li><strong>Principle 2 – CLIENT AND EMPLOYER</strong> — Act in a manner consistent with the interests of client and employer</li>
+              <li><strong>Principle 3 – PRODUCT</strong> — Ensure the highest professional standards possible</li>
+              <li><strong>Principle 4 – JUDGMENT</strong> — Maintain integrity and independence</li>
+              <li><strong>Principle 5 – MANAGEMENT</strong> — Promote ethical approach to management</li>
+              <li><strong>Principle 6 – PROFESSION</strong> — Advance integrity and reputation of profession</li>
+              <li><strong>Principle 7 – COLLEAGUES</strong> — Be fair and supportive of colleagues</li>
+              <li><strong>Principle 8 – SELF</strong> — Participate in lifelong learning regarding practice of profession and promote an ethical approach</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end notes -->
+
+  <!-- ===== QUICK REFERENCE ===== -->
+  <div id="cheat" class="section">
+    <div class="cheat-grid">
+      <div class="cheat-card">
+        <h3>RA Numbers</h3>
+        <div class="cheat-row"><span class="cheat-key">RA 8792</span><span class="cheat-val">E-Commerce Law (2000)</span></div>
+        <div class="cheat-row"><span class="cheat-key">RA 8293</span><span class="cheat-val">Intellectual Property Code (1998)</span></div>
+        <div class="cheat-row"><span class="cheat-key">RA 9239</span><span class="cheat-val">Optical Media Act (2003/2004)</span></div>
+        <div class="cheat-row"><span class="cheat-key">RA 10173</span><span class="cheat-val">Data Privacy Act (2012)</span></div>
+        <div class="cheat-row"><span class="cheat-key">RA 10844</span><span class="cheat-val">DICT Act (2015/2016)</span></div>
+        <div class="cheat-row"><span class="cheat-key">RA 10175</span><span class="cheat-val">Cybercrime Prevention Act (2012)</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>Key Dates</h3>
+        <div class="cheat-row"><span class="cheat-key">Jun 14, 2000</span><span class="cheat-val">RA 8792 signed (Estrada)</span></div>
+        <div class="cheat-row"><span class="cheat-key">Jan 1, 1998</span><span class="cheat-val">RA 8293 (Sen. Roco)</span></div>
+        <div class="cheat-row"><span class="cheat-key">Feb 10, 2004</span><span class="cheat-val">RA 9239 signed (Arroyo)</span></div>
+        <div class="cheat-row"><span class="cheat-key">Aug 15, 2012</span><span class="cheat-val">RA 10173 (DPA)</span></div>
+        <div class="cheat-row"><span class="cheat-key">May 23, 2016</span><span class="cheat-val">RA 10844 ratified</span></div>
+        <div class="cheat-row"><span class="cheat-key">Sep 12, 2012</span><span class="cheat-val">RA 10175 enacted</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>Key Agencies</h3>
+        <div class="cheat-row"><span class="cheat-key">NTC</span><span class="cheat-val">Natl Telecomm Commission</span></div>
+        <div class="cheat-row"><span class="cheat-key">NPC</span><span class="cheat-val">Natl Privacy Commission (DPA)</span></div>
+        <div class="cheat-row"><span class="cheat-key">CICC</span><span class="cheat-val">Cybercrime Investigation & Coord. Centre</span></div>
+        <div class="cheat-row"><span class="cheat-key">OMB</span><span class="cheat-val">Optical Media Board (RA 9239)</span></div>
+        <div class="cheat-row"><span class="cheat-key">DICT</span><span class="cheat-val">Dept of ICT (RA 10844)</span></div>
+        <div class="cheat-row"><span class="cheat-key">IPO</span><span class="cheat-val">Intellectual Property Office</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>DPA Rights (8)</h3>
+        <div class="cheat-row"><span class="cheat-key">1</span><span class="cheat-val">Be Informed</span></div>
+        <div class="cheat-row"><span class="cheat-key">2</span><span class="cheat-val">Access</span></div>
+        <div class="cheat-row"><span class="cheat-key">3</span><span class="cheat-val">Object</span></div>
+        <div class="cheat-row"><span class="cheat-key">4</span><span class="cheat-val">Erasure / Blocking</span></div>
+        <div class="cheat-row"><span class="cheat-key">5</span><span class="cheat-val">Damages</span></div>
+        <div class="cheat-row"><span class="cheat-key">6</span><span class="cheat-val">File a Complaint</span></div>
+        <div class="cheat-row"><span class="cheat-key">7</span><span class="cheat-val">Rectify</span></div>
+        <div class="cheat-row"><span class="cheat-key">8</span><span class="cheat-val">Data Portability</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>Cybercrime Offenses</h3>
+        <div class="cheat-row"><span class="cheat-key">1</span><span class="cheat-val">Illegal Access</span></div>
+        <div class="cheat-row"><span class="cheat-key">2</span><span class="cheat-val">Illegal Interception</span></div>
+        <div class="cheat-row"><span class="cheat-key">3</span><span class="cheat-val">Data Interference</span></div>
+        <div class="cheat-row"><span class="cheat-key">4</span><span class="cheat-val">System Interference</span></div>
+        <div class="cheat-row"><span class="cheat-key">5</span><span class="cheat-val">Misuse of Devices</span></div>
+        <div class="cheat-row"><span class="cheat-key">6-8</span><span class="cheat-val">Forgery, Fraud, Identity Theft</span></div>
+        <div class="cheat-row"><span class="cheat-key">9</span><span class="cheat-val">Cybersex</span></div>
+        <div class="cheat-row"><span class="cheat-key">10</span><span class="cheat-val">Child Pornography</span></div>
+        <div class="cheat-row"><span class="cheat-key">11</span><span class="cheat-val">Libel</span></div>
+        <div class="cheat-row"><span class="cheat-key">12-14</span><span class="cheat-val">Aiding, Attempt, Corporate Liability</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>Copyright Rights</h3>
+        <div class="cheat-row"><span class="cheat-key">Economic</span><span class="cheat-val">Reproduction, Performance, Recording, Broadcasting, Translation, Adaptation</span></div>
+        <div class="cheat-row"><span class="cheat-key">Moral</span><span class="cheat-val">Claim authorship, Oppose harmful changes</span></div>
+        <div class="cheat-row"><span class="cheat-key">Patent</span><span class="cheat-val">Exclusive right for new invention/process</span></div>
+        <div class="cheat-row"><span class="cheat-key">Trademark</span><span class="cheat-val">Sign distinguishing goods/services</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>DICT Transferred Agencies</h3>
+        <div class="cheat-row"><span class="cheat-key">ICTO</span><span class="cheat-val">ICT Office</span></div>
+        <div class="cheat-row"><span class="cheat-key">NCC</span><span class="cheat-val">Natl Computer Center</span></div>
+        <div class="cheat-row"><span class="cheat-key">NCI</span><span class="cheat-val">Natl Computer Institute</span></div>
+        <div class="cheat-row"><span class="cheat-key">TELOF</span><span class="cheat-val">Telecomm Office</span></div>
+        <div class="cheat-row"><span class="cheat-key">NTTI</span><span class="cheat-val">Natl Telecomm Training Inst.</span></div>
+        <div class="cheat-row"><span class="cheat-key">DOTC units</span><span class="cheat-val">Communications functions</span></div>
+      </div>
+      <div class="cheat-card">
+        <h3>Optical Media Penalties</h3>
+        <div class="cheat-row"><span class="cheat-key">Min Fine</span><span class="cheat-val">Php 300,000</span></div>
+        <div class="cheat-row"><span class="cheat-key">Max Fine</span><span class="cheat-val">Php 1,500,000</span></div>
+        <div class="cheat-row"><span class="cheat-key">License</span><span class="cheat-val">3 years, form by OMB</span></div>
+        <div class="cheat-row"><span class="cheat-key">Also</span><span class="cheat-val">Closure + Equipment Confiscation</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUIZ ===== -->
+  <div id="quiz" class="section">
+    <div class="quiz-controls">
+      <button class="btn btn-primary" onclick="resetQuiz()">🔄 Reset Quiz</button>
+      <button class="btn btn-ghost" onclick="showAllAnswers()">👁 Show All Answers</button>
+      <div class="quiz-score">Score: <span id="scoreDisplay">0</span> / <span id="totalDisplay">0</span></div>
+    </div>
+    <div id="quizContainer"></div>
+  </div>
+
+  <!-- ===== SITUATIONAL ===== -->
+  <div id="situational" class="section">
+    <div class="quiz-controls">
+      <button class="btn btn-primary" onclick="resetSit()">🔄 Reset</button>
+      <div class="quiz-score">Score: <span id="sitScoreDisplay">0</span> / <span id="sitTotalDisplay">0</span></div>
+    </div>
+    <div id="sitContainer"></div>
+  </div>
+
+</div><!-- end container -->
+
+<script>
+// ========== NAV ==========
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function toggleChapter(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+// ========== QUIZ DATA ==========
+const quizData = [
+  {
+    type: 'id',
+    q: "Which Republic Act is known as the E-Commerce Law of the Philippines?",
+    opts: ["RA 8293", "RA 8792", "RA 9239", "RA 10175"],
+    ans: 1,
+    exp: "RA 8792 is the Electronic Commerce Act of 2000, approved by President Estrada on June 14, 2000."
+  },
+  {
+    type: 'id',
+    q: "The Data Privacy Act of 2012 is also known as:",
+    opts: ["RA 9239", "RA 10844", "RA 10173", "RA 10175"],
+    ans: 2,
+    exp: "RA 10173 is the Data Privacy Act of 2012 (DPA), which guarantees people's privacy while ensuring free flow of information."
+  },
+  {
+    type: 'id',
+    q: "Which law regulates the production, mastering, replication, importation, and exportation of optical media?",
+    opts: ["RA 8293", "RA 8792", "RA 9239", "RA 10173"],
+    ans: 2,
+    exp: "RA 9239, the Optical Media Act of 2003, was signed by GMA on February 10, 2004. It reorganizes the video gram regulatory board."
+  },
+  {
+    type: 'id',
+    q: "What agency is the country's 'privacy watchdog' that administers and implements the DPA?",
+    opts: ["CICC", "NTC", "National Privacy Commission", "DICT"],
+    ans: 2,
+    exp: "The National Privacy Commission (NPC) is an independent agency tasked with administering and implementing the DPA."
+  },
+  {
+    type: 'id',
+    q: "Under RA 10175, what cybercrime refers to interception of any non-public communication of computer data?",
+    opts: ["Illegal Access", "Data Interference", "Illegal Interception", "System Interference"],
+    ans: 2,
+    exp: "Illegal Interception (Provision 2) — interception of any non-public communication of computer data to, from, or within a computer system by an unauthorized person."
+  },
+  {
+    type: 'id',
+    q: "What are the two types of rights under Copyright?",
+    opts: ["Patent and Trademark", "Economic and Moral", "Civil and Criminal", "Procedural and National"],
+    ans: 1,
+    exp: "Copyright has Economic Rights (reproduction, public performance, recording, broadcasting, translation, adaptation) and Moral Rights (claim authorship, oppose harmful changes)."
+  },
+  {
+    type: 'id',
+    q: "The DICT Act (RA 10844) was ratified on:",
+    opts: ["June 14, 2000", "September 12, 2012", "May 23, 2016", "February 10, 2004"],
+    ans: 2,
+    exp: "RA 10844 was ratified on May 23, 2016. Its IRR was signed on October 17, 2016 by DBM Secretary Diokno and DICT Secretary Salalima."
+  },
+  {
+    type: 'id',
+    q: "Which commandment from the Ten Commandments of Computer Ethics says: 'Thou shalt not use a computer to bear false witness'?",
+    opts: ["3rd", "4th", "5th", "6th"],
+    ans: 2,
+    exp: "Commandment #5 is 'Thou shalt not use a computer to bear false witness.'"
+  },
+  {
+    type: 'id',
+    q: "Under the DPA, what right allows you to correct any inaccuracy or error in your data?",
+    opts: ["Right to Access", "Right to Object", "Right to Rectify", "Right to Data Portability"],
+    ans: 2,
+    exp: "The Right to Rectify — right to dispute and have corrected any inaccuracy or error in your data."
+  },
+  {
+    type: 'id',
+    q: "What is a Patent?",
+    opts: [
+      "A sign capable of distinguishing goods or services of one enterprise from those of other enterprises",
+      "An exclusive right granted for an invention which is a product or a process that provides a new way of doing something",
+      "The right to claim authorship of a work",
+      "A legal term used to describe the rights that creators have over their literary and artistic works"
+    ],
+    ans: 1,
+    exp: "A Patent is an exclusive right granted for an invention (product or process) that provides a new way of doing something or offers a new technical solution to a problem."
+  },
+  {
+    type: 'id',
+    q: "Which of the following was NOT transferred to DICT (RA 10844)?",
+    opts: ["ICTO", "National Computer Center", "National Privacy Commission", "TELOF"],
+    ans: 2,
+    exp: "The NPC (National Privacy Commission) was NOT transferred to DICT. The agencies transferred were ICTO, NCC, NCI, TELOF, NTTI, and DOTC communications units."
+  },
+  {
+    type: 'id',
+    q: "Under RA 10175, what cybercrime involves unauthorized acquisition, abuse, transfer, possession, or deletion of an individual's identifying information?",
+    opts: ["Cybersex", "Computer-related Fraud", "Computer-related Identity Theft", "Data Interference"],
+    ans: 2,
+    exp: "Computer-related Identity Theft — unauthorized acquisition, abuse, transfer, possession, change, or deletion of an individual's identifying information, whether natural or legal."
+  },
+  {
+    type: 'id',
+    q: "Social responsibility in engineering means placing _______ ahead of all other considerations.",
+    opts: ["profit and innovation", "company reputation", "public safety and interest", "government approval"],
+    ans: 2,
+    exp: "Social responsibility = commitment from the engineering profession to place the public safety and interest ahead of all other considerations."
+  },
+  {
+    type: 'id',
+    q: "The first ever written law is considered to be the:",
+    opts: ["Roman Law (Lex Romana)", "Ten Commandments", "Code of Hammurabi (1754 BC)", "Magna Carta"],
+    ans: 2,
+    exp: "The Code of Hammurabi (1754 BC, Babylonian Laws) is considered the first written law — an eye for an eye."
+  },
+  {
+    type: 'tf',
+    q: "TRUE or FALSE: The National Privacy Commission is attached to the Department of Information and Communications Technology (DICT).",
+    opts: ["True", "False"],
+    ans: 1,
+    exp: "FALSE. The agencies attached to DICT for cybercrime purposes are NTC, NPC, and CICC — but NPC is attached to the Office of the President, not DICT. However, NTC and CICC are under DICT. The statement is misleading — NPC is independent."
+  },
+  {
+    type: 'id',
+    q: "Which ACM General Moral Imperative focuses on not acquiring, copying, or distributing software without proper authorization?",
+    opts: ["Avoid harm to others", "Give proper credit for intellectual property", "Honor property rights including copyrights and patents", "Honor confidentiality"],
+    ans: 2,
+    exp: "Honor property rights including copyrights and patents is the General Moral Imperative that addresses unauthorized software and IP use."
+  },
+  {
+    type: 'id',
+    q: "Under RA 9239, how many years is an Optical Media license valid?",
+    opts: ["1 year", "2 years", "3 years", "5 years"],
+    ans: 2,
+    exp: "Every license shall be valid for a period of three (3) years, subject to conditions as the OMB may impose."
+  },
+  {
+    type: 'id',
+    q: "Which principle of the SE Code of Ethics states that software engineers shall 'participate in lifelong learning regarding the practice of their profession'?",
+    opts: ["Principle 1 – PUBLIC", "Principle 6 – PROFESSION", "Principle 7 – COLLEAGUES", "Principle 8 – SELF"],
+    ans: 3,
+    exp: "Principle 8 – SELF: Software engineers shall participate in lifelong learning regarding the practice of their profession and shall promote an ethical approach to the practice of the profession."
+  },
+  {
+    type: 'id',
+    q: "Which of the following is NOT included in the information assets protected under the Data Privacy Act?",
+    opts: ["TIN", "Bank Account Details", "Educational Attainment", "SSS Number"],
+    ans: 2,
+    exp: "Educational Attainment is not listed specifically. The information assets include: Name, Address, TIN, SSS No., Contact Numbers, Bank Account Details, ATM Card Details, Credit Card Details."
+  },
+  {
+    type: 'id',
+    q: "What are the three pillars of Sustainable Development?",
+    opts: [
+      "Economic, Political, Social",
+      "Environmental, Technological, Cultural",
+      "Economic Growth, Environmental Protection, Social Progress",
+      "Innovation, Sustainability, Governance"
+    ],
+    ans: 2,
+    exp: "The three pillars of sustainable development are Economic Growth, Environmental Protection, and Social Progress. A lasting solution can only be developed by considering all three."
+  }
+];
+
+// ========== SITUATIONAL DATA ==========
+const sitData = [
+  {
+    q: "Maria uploaded her selfie to a social media app. Without her knowledge, the app sold her photo and personal details including her phone number and address to third-party advertisers. Which law was violated and what specific right was breached?",
+    opts: [
+      "RA 8792 (E-Commerce Law) — Right to Access",
+      "RA 10173 (Data Privacy Act) — Right to be Informed and Right to Object",
+      "RA 10175 (Cybercrime Law) — Illegal Access",
+      "RA 8293 (IP Code) — Moral Rights"
+    ],
+    ans: 1,
+    exp: "RA 10173 (DPA) was violated. Maria's personal data (photo, phone, address) was collected and processed without her consent — violating the Right to be Informed (data should never be collected/processed/stored without explicit consent) and the Right to Object (can object if processing is based on consent or legitimate interest)."
+  },
+  {
+    q: "A tech company created an app that can generate fake news articles that appear to come from legitimate news organizations. Juan used this app to spread a false story about a political candidate. Which law covers Juan's actions?",
+    opts: [
+      "RA 8293 – Intellectual Property Code",
+      "RA 9239 – Optical Media Act",
+      "RA 10175 – Cybercrime Prevention Act (Computer-related Fraud and Libel)",
+      "RA 8792 – E-Commerce Law"
+    ],
+    ans: 2,
+    exp: "RA 10175 covers Juan's actions under Computer-related Fraud (manipulating data to cause damage or harm) and Libel (spreading false statements that damage another's reputation through a computer system)."
+  },
+  {
+    q: "A local DVD shop is selling copies of newly released movies at very low prices. The owner claims it is legal because they bought one original copy and just replicated it for customers. As a CPE student, which law addresses this situation?",
+    opts: [
+      "RA 8792 – E-Commerce Law",
+      "RA 10173 – Data Privacy Act",
+      "RA 9239 – Optical Media Act AND RA 8293 – IP Code",
+      "RA 10175 – Cybercrime Act"
+    ],
+    ans: 2,
+    exp: "Both RA 9239 (Optical Media Act) and RA 8293 (IP Code/Copyright) are violated. RA 9239 prohibits unauthorized replication of optical media. RA 8293 protects the economic rights of copyright holders — including the right of reproduction. The owner needs a license from OMB and permission from copyright holders."
+  },
+  {
+    q: "Pedro, a software engineer at a hospital, accessed the medical records of patients without authorization just to check if the system had security vulnerabilities. He didn't steal or change anything. Is Pedro liable under any law?",
+    opts: [
+      "No — he didn't steal or damage any data",
+      "Yes — under RA 10175 for Illegal Access, access without permission is itself a crime regardless of intent",
+      "Yes — under RA 10173 only, since these are medical records",
+      "No — as an employee, he has implied access to all systems"
+    ],
+    ans: 1,
+    exp: "Yes, Pedro is liable under RA 10175 (Cybercrime Prevention Act) for Illegal Access. Access to a computer or any application without permission is itself the offense — regardless of whether data was stolen or modified. His good intentions do not exempt him."
+  },
+  {
+    q: "Ana, a software developer, used code written by her colleague Bart in her personal project without crediting him. She profited from selling the app. Which ethical framework/principle did she violate?",
+    opts: [
+      "Ten Commandments #5 — Thou shalt not use a computer to bear false witness",
+      "ACM Code — Give proper credit for intellectual property + Thou shalt not appropriate other people's intellectual output (Commandment #8)",
+      "SE Code Principle 5 – MANAGEMENT",
+      "IIPTSA Code – Non-discrimination"
+    ],
+    ans: 1,
+    exp: "Ana violated the ACM General Moral Imperative to 'Give proper credit for intellectual property' and the 8th Commandment of Computer Ethics: 'Thou shalt not appropriate other people's intellectual output.' She may also be liable under RA 8293 (IP Code)."
+  },
+  {
+    q: "A startup company is processing online payments and storing customer credit card details in plain text on their servers. They haven't informed customers about this data storage practice. Which law do they violate and how?",
+    opts: [
+      "RA 9239 — unauthorized optical media replication",
+      "RA 8792 — failure to provide electronic signatures",
+      "RA 10173 — failure to inform data subjects and improper storage of sensitive personal information",
+      "RA 10175 — system interference"
+    ],
+    ans: 2,
+    exp: "RA 10173 (DPA) is violated. Credit card details are sensitive personal information that must be protected. The company violated the Right to be Informed (customers must know their data is being collected) and their duty to implement appropriate security measures. Storing in plain text is a clear failure of data protection standards."
+  },
+  {
+    q: "A hacker group broke into a government portal and replaced the homepage with their own message. They claimed it was to expose poor security. Are they liable? Under which law?",
+    opts: [
+      "No — they performed a public service by exposing vulnerabilities",
+      "Yes — RA 10175 for Illegal Access and System Interference",
+      "Yes — only RA 8293 for violating website content copyright",
+      "No — only private sector systems are protected"
+    ],
+    ans: 1,
+    exp: "Yes, the hackers are liable under RA 10175. They committed Illegal Access (unauthorized access to the computer system) and Data Interference (altering the webpage). Their intent does not matter — the unauthorized access and system alteration are crimes under the Cybercrime Prevention Act."
+  },
+  {
+    q: "Engr. Reyes, a civil engineer, discovers during construction that the building design does not meet safety standards but his employer pressures him to keep quiet to avoid delays. What should Engr. Reyes do according to engineering ethics?",
+    opts: [
+      "Keep quiet to respect his employer's authority",
+      "Complete the project first, then report afterward",
+      "Blow the whistle and report the safety concern — public safety must come before employer interest",
+      "Resign quietly without reporting"
+    ],
+    ans: 2,
+    exp: "According to engineering social responsibility and ethics, public safety must come ahead of all other considerations. Engr. Reyes must blow the whistle and report the safety concern. Social responsibilities of engineers include speaking out publicly against unsafe projects and refusing to work on projects that endanger the public."
+  },
+  {
+    q: "A company sent an email marketing blast to 10,000 customers without obtaining their explicit consent. When customers tried to unsubscribe, the link didn't work. Which right under the DPA is most specifically violated?",
+    opts: [
+      "Right to Rectify",
+      "Right to Data Portability",
+      "Right to Object — since customers cannot opt-out of marketing communications",
+      "Right to File a Complaint"
+    ],
+    ans: 2,
+    exp: "The Right to Object is most specifically violated — you can object if personal data processing is based on consent or on legitimate interest. The broken unsubscribe link prevents the exercise of this right. Additionally, the Right to be Informed (no consent obtained) was also violated."
+  },
+  {
+    q: "BrandX sells products labelled with a logo that looks almost identical to a well-known multinational company's logo. The multinational sues them. Under which law?",
+    opts: [
+      "RA 8792 – E-Commerce Law",
+      "RA 10175 – Cybercrime Law",
+      "RA 8293 – Intellectual Property Code (Trademark infringement)",
+      "RA 9239 – Optical Media Act"
+    ],
+    ans: 2,
+    exp: "RA 8293 (Intellectual Property Code) covers Trademark infringement. A Trademark is a sign capable of distinguishing the goods or services of one enterprise from those of other enterprises. Using a confusingly similar logo is trademark infringement."
+  }
+];
+
+// ========== QUIZ ENGINE ==========
+let quizScore = 0;
+let quizAnswered = 0;
+
+function renderQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '';
+  quizScore = 0; quizAnswered = 0;
+  updateScore();
+  quizData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `q-${i}`;
+
+    const badgeClass = item.type === 'tf' ? 'badge-tf' : 'badge-id';
+    const badgeLabel = item.type === 'tf' ? 'True/False' : item.type === 'sit' ? 'Situational' : 'Identification';
+
+    let optsHTML = item.opts.map((opt, j) => `
+      <button class="q-option" onclick="answerQuiz(${i}, ${j}, this)">
+        <span class="opt-letter">${String.fromCharCode(65+j)}.</span>
+        <span>${opt}</span>
+      </button>`).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">#${i+1}</span>
+        <span class="q-type-badge ${badgeClass}">${badgeLabel}</span>
+      </div>
+      <div class="q-text">${item.q}</div>
+      <div class="q-options">${optsHTML}</div>
+      <div class="q-explanation" id="exp-${i}"><strong>Explanation:</strong> ${item.exp}</div>
+    `;
+    container.appendChild(card);
+  });
+  document.getElementById('totalDisplay').textContent = quizData.length;
+}
+
+function answerQuiz(qi, chosen, btn) {
+  const card = document.getElementById(`q-${qi}`);
+  if (card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+  const item = quizData[qi];
+  const opts = card.querySelectorAll('.q-option');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[item.ans].classList.add('correct');
+  if (chosen !== item.ans) {
+    btn.classList.add('wrong-pick');
+    card.classList.add('answered-wrong');
+  } else {
+    card.classList.add('answered-correct');
+    quizScore++;
+  }
+  quizAnswered++;
+  document.getElementById(`exp-${qi}`).classList.add('show');
+  updateScore();
+}
+
+function updateScore() {
+  document.getElementById('scoreDisplay').textContent = quizScore;
+}
+
+function showAllAnswers() {
+  quizData.forEach((item, i) => {
+    const card = document.getElementById(`q-${i}`);
+    if (!card) return;
+    const opts = card.querySelectorAll('.q-option');
+    opts.forEach(o => o.classList.add('disabled'));
+    opts[item.ans].classList.add('correct');
+    document.getElementById(`exp-${i}`).classList.add('show');
+  });
+}
+
+function resetQuiz() { renderQuiz(); }
+
+// ========== SITUATIONAL ENGINE ==========
+let sitScore = 0;
+
+function renderSit() {
+  const container = document.getElementById('sitContainer');
+  container.innerHTML = '';
+  sitScore = 0;
+  document.getElementById('sitScoreDisplay').textContent = 0;
+  document.getElementById('sitTotalDisplay').textContent = sitData.length;
+
+  sitData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = `sit-${i}`;
+
+    let optsHTML = item.opts.map((opt, j) => `
+      <button class="q-option" onclick="answerSit(${i}, ${j}, this)">
+        <span class="opt-letter">${String.fromCharCode(65+j)}.</span>
+        <span>${opt}</span>
+      </button>`).join('');
+
+    card.innerHTML = `
+      <div class="q-meta">
+        <span class="q-num">#${i+1}</span>
+        <span class="q-type-badge badge-sit">Situational</span>
+      </div>
+      <div class="q-text">${item.q}</div>
+      <div class="q-options">${optsHTML}</div>
+      <div class="q-explanation" id="sit-exp-${i}"><strong>Explanation:</strong> ${item.exp}</div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function answerSit(qi, chosen, btn) {
+  const card = document.getElementById(`sit-${qi}`);
+  if (card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+  const item = sitData[qi];
+  const opts = card.querySelectorAll('.q-option');
+  opts.forEach(o => o.classList.add('disabled'));
+  opts[item.ans].classList.add('correct');
+  if (chosen !== item.ans) {
+    btn.classList.add('wrong-pick');
+    card.classList.add('answered-wrong');
+  } else {
+    card.classList.add('answered-correct');
+    sitScore++;
+  }
+  document.getElementById(`sit-exp-${qi}`).classList.add('show');
+  document.getElementById('sitScoreDisplay').textContent = sitScore;
+}
+
+function resetSit() { renderSit(); }
+
+// Init
+renderQuiz();
+renderSit();
+</script>
+</body>
+</html>
